@@ -1,0 +1,95 @@
+# ============================================================
+# LILA Player Journey Visualizer
+# ============================================================
+
+# ----------------------------
+# Python
+# ----------------------------
+.venv/
+venv/
+env/
+ENV/
+
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Python environment variables
+.env
+.env.*
+!.env.example
+
+# ----------------------------
+# Raw LILA Gameplay Data
+# ----------------------------
+# Do not commit the provided production telemetry dataset.
+player_data/
+player_data.zip
+
+*.nakama-0
+*.parquet
+
+# ----------------------------
+# Node / React / Vite
+# ----------------------------
+node_modules/
+
+dist/
+dist-ssr/
+build/
+
+*.local
+
+# ----------------------------
+# Logs
+# ----------------------------
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ----------------------------
+# IDE / Editor
+# ----------------------------
+.vscode/
+.idea/
+
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# ----------------------------
+# Operating System
+# ----------------------------
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ----------------------------
+# Vercel
+# ----------------------------
+.vercel/
+
+# ----------------------------
+# Temporary / Cache Files
+# ----------------------------
+.cache/
+tmp/
+temp/
+*.tmp
+
+# ----------------------------
+# Coverage
+# ----------------------------
+coverage/
+.coverage
+htmlcov/ 
