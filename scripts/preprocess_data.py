@@ -190,14 +190,10 @@ def build_match(match_id, player_files):
             "ts"
         )
 
-        movement_event = (
-            "BotPosition"
-            if bot
-            else "Position"
-        )
-
         movement_rows = player_df[
-            player_df["event"] == movement_event
+            player_df["event"].isin(
+                MOVEMENT_EVENTS
+            )
         ]
 
         path = []
@@ -280,7 +276,12 @@ def build_match(match_id, player_files):
                 "stats": {
                     "positions": int(
                         counts.get(
-                            movement_event,
+                            "Position",
+                            0,
+                        )
+                        +
+                        counts.get(
+                            "BotPosition",
                             0,
                         )
                     ),

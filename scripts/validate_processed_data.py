@@ -154,6 +154,23 @@ def main():
         total_events,
     )
 
+    processed_total = (
+    total_paths
+    + total_events
+    )
+
+    expected_total = 89104
+
+    print(
+        "Total represented rows:",
+        processed_total,
+    )
+
+    print(
+        "Expected source rows:",
+        expected_total,
+    )
+
     print("\nVALIDATION")
     print("-" * 50)
 
@@ -199,6 +216,12 @@ def main():
         not missing_files
         and
         not invalid_positions
+        and
+        total_paths == 73059
+        and
+        total_events == 16045
+        and
+        processed_total == 89104
     ):
 
         print(
