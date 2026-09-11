@@ -93,3 +93,6 @@ temp/
 coverage/
 .coverage
 htmlcov/ 
+
+# Generated preprocessing output
+processed_data/
