@@ -9,6 +9,9 @@ import {
   CalendarDays,
   Crosshair,
   Map,
+  Pause,
+  Play,
+  RotateCcw,
   Skull,
   Users,
 } from "lucide-react";
@@ -30,51 +33,113 @@ import {
   MINIMAP_PATHS,
 } from "./utils/minimaps";
 
+function formatTime(
+  milliseconds: number
+) {
+  const totalSeconds =
+    Math.floor(
+      milliseconds / 1000
+    );
+
+  const minutes =
+    Math.floor(
+      totalSeconds / 60
+    );
+
+  const seconds =
+    totalSeconds % 60;
+
+  return `${minutes}:${seconds
+    .toString()
+    .padStart(2, "0")}`;
+}
+
 function App() {
-  const [telemetryIndex, setTelemetryIndex] =
-    useState<TelemetryIndex | null>(null);
+  const [
+    telemetryIndex,
+    setTelemetryIndex,
+  ] = useState<TelemetryIndex | null>(
+    null
+  );
 
-  const [selectedMap, setSelectedMap] =
-    useState("");
+  const [
+    selectedMap,
+    setSelectedMap,
+  ] = useState("");
 
-  const [selectedDate, setSelectedDate] =
-    useState("");
+  const [
+    selectedDate,
+    setSelectedDate,
+  ] = useState("");
 
   const [
     selectedMatchId,
     setSelectedMatchId,
   ] = useState("");
 
-  const [matchData, setMatchData] =
-    useState<MatchData | null>(null);
+  const [
+    matchData,
+    setMatchData,
+  ] = useState<MatchData | null>(
+    null
+  );
 
   const [
     loadingMatch,
     setLoadingMatch,
   ] = useState(false);
 
-  const [error, setError] =
-    useState<string | null>(null);
+  const [
+    error,
+    setError,
+  ] = useState<string | null>(
+    null
+  );
 
-  const [showHumans, setShowHumans] =
-    useState(true);
+  const [
+    showHumans,
+    setShowHumans,
+  ] = useState(true);
 
-  const [showBots, setShowBots] =
-    useState(true);
+  const [
+    showBots,
+    setShowBots,
+  ] = useState(true);
 
-  const [showKills, setShowKills] =
-    useState(true);
+  const [
+    showKills,
+    setShowKills,
+  ] = useState(true);
 
-  const [showDeaths, setShowDeaths] =
-    useState(true);
+  const [
+    showDeaths,
+    setShowDeaths,
+  ] = useState(true);
 
-  const [showLoot, setShowLoot] =
-    useState(true);
+  const [
+    showLoot,
+    setShowLoot,
+  ] = useState(true);
 
   const [
     showStormDeaths,
     setShowStormDeaths,
   ] = useState(true);
+
+  const [
+    currentTimeMs,
+    setCurrentTimeMs,
+  ] = useState(0);
+
+  const [
+    isPlaying,
+    setIsPlaying,
+  ] = useState(false);
+
+  const [
+    playbackSpeed,
+    setPlaybackSpeed,
+  ] = useState(1);
 
   useEffect(() => {
     async function initialise() {
@@ -122,11 +187,13 @@ function App() {
         (match) => {
           const mapMatches =
             !selectedMap ||
-            match.mapId === selectedMap;
+            match.mapId ===
+              selectedMap;
 
           const dateMatches =
             !selectedDate ||
-            match.date === selectedDate;
+            match.date ===
+              selectedDate;
 
           return (
             mapMatches &&
@@ -156,9 +223,12 @@ function App() {
       return;
     }
 
-    if (filteredMatches.length > 0) {
+    if (
+      filteredMatches.length > 0
+    ) {
       setSelectedMatchId(
-        filteredMatches[0].matchId
+        filteredMatches[0]
+          .matchId
       );
     } else {
       setSelectedMatchId("");
@@ -185,10 +255,13 @@ function App() {
       if (!selectedSummary) {
         setMatchData(null);
         setLoadingMatch(false);
+        setCurrentTimeMs(0);
+        setIsPlaying(false);
         return;
       }
 
       setLoadingMatch(true);
+      setIsPlaying(false);
 
       try {
         const data =
@@ -198,6 +271,10 @@ function App() {
 
         if (!cancelled) {
           setMatchData(data);
+
+          setCurrentTimeMs(
+            data.durationMs
+          );
         }
       } catch (err) {
         if (!cancelled) {
@@ -221,6 +298,93 @@ function App() {
     };
   }, [selectedSummary]);
 
+  useEffect(() => {
+    if (
+      !isPlaying ||
+      !matchData ||
+      matchData.durationMs <= 0
+    ) {
+      return;
+    }
+
+    let lastTimestamp:
+      | number
+      | null = null;
+
+    let animationFrameId:
+      | number
+      | null = null;
+
+    function animate(
+      timestamp: number
+    ) {
+      if (lastTimestamp === null) {
+        lastTimestamp =
+          timestamp;
+      }
+
+      const delta =
+        timestamp -
+        lastTimestamp;
+
+      lastTimestamp =
+        timestamp;
+
+      setCurrentTimeMs(
+        (previousTime) => {
+          if (!matchData) {
+            return previousTime;
+          }
+
+          const nextTime =
+            previousTime +
+            delta *
+              playbackSpeed;
+
+          if (
+            nextTime >=
+            matchData.durationMs
+          ) {
+            setIsPlaying(
+              false
+            );
+
+            return (
+              matchData.durationMs
+            );
+          }
+
+          return nextTime;
+        }
+      );
+
+      animationFrameId =
+        requestAnimationFrame(
+          animate
+        );
+    }
+
+    animationFrameId =
+      requestAnimationFrame(
+        animate
+      );
+
+    return () => {
+      if (
+        animationFrameId !==
+        null
+      ) {
+        cancelAnimationFrame(
+          animationFrameId
+        );
+      }
+    };
+  }, [
+    isPlaying,
+    matchData,
+    playbackSpeed,
+  ]);
+
   if (error) {
     return (
       <div className="center-screen">
@@ -229,7 +393,9 @@ function App() {
             Unable to load telemetry
           </h1>
 
-          <p>{error}</p>
+          <p>
+            {error}
+          </p>
         </div>
       </div>
     );
@@ -257,7 +423,8 @@ function App() {
             </span>
 
             <span className="product-name">
-              PLAYER JOURNEY ANALYZER
+              PLAYER JOURNEY
+              ANALYZER
             </span>
           </div>
 
@@ -268,7 +435,8 @@ function App() {
 
         <div className="dataset-pill">
           {
-            telemetryIndex.metadata
+            telemetryIndex
+              .metadata
               .totalMatches
           }{" "}
           MATCHES
@@ -291,12 +459,17 @@ function App() {
             }
           >
             {
-              telemetryIndex.metadata
+              telemetryIndex
+                .metadata
                 .maps.map(
                   (mapId) => (
                     <option
-                      key={mapId}
-                      value={mapId}
+                      key={
+                        mapId
+                      }
+                      value={
+                        mapId
+                      }
                     >
                       {mapId}
                     </option>
@@ -308,12 +481,16 @@ function App() {
 
         <label className="filter-field">
           <span>
-            <CalendarDays size={14} />
+            <CalendarDays
+              size={14}
+            />
             DATE
           </span>
 
           <select
-            value={selectedDate}
+            value={
+              selectedDate
+            }
             onChange={(event) =>
               setSelectedDate(
                 event.target.value
@@ -321,12 +498,17 @@ function App() {
             }
           >
             {
-              telemetryIndex.metadata
+              telemetryIndex
+                .metadata
                 .dates.map(
                   (date) => (
                     <option
-                      key={date}
-                      value={date}
+                      key={
+                        date
+                      }
+                      value={
+                        date
+                      }
                     >
                       {
                         date.replace(
@@ -347,31 +529,42 @@ function App() {
           </span>
 
           <select
-            value={selectedMatchId}
+            value={
+              selectedMatchId
+            }
             onChange={(event) =>
               setSelectedMatchId(
                 event.target.value
               )
             }
             disabled={
-              filteredMatches.length === 0
+              filteredMatches
+                .length === 0
             }
           >
             {
-              filteredMatches.length > 0 ? (
+              filteredMatches
+                .length > 0 ? (
                 filteredMatches.map(
                   (match) => (
                     <option
-                      key={match.matchId}
-                      value={match.matchId}
+                      key={
+                        match.matchId
+                      }
+                      value={
+                        match.matchId
+                      }
                     >
-                      {match.cleanMatchId}
+                      {
+                        match.cleanMatchId
+                      }
                     </option>
                   )
                 )
               ) : (
                 <option value="">
-                  No matches available
+                  No matches
+                  available
                 </option>
               )
             }
@@ -387,7 +580,9 @@ function App() {
         <label className="layer-toggle">
           <input
             type="checkbox"
-            checked={showHumans}
+            checked={
+              showHumans
+            }
             onChange={(event) =>
               setShowHumans(
                 event.target.checked
@@ -403,7 +598,9 @@ function App() {
         <label className="layer-toggle">
           <input
             type="checkbox"
-            checked={showBots}
+            checked={
+              showBots
+            }
             onChange={(event) =>
               setShowBots(
                 event.target.checked
@@ -421,7 +618,9 @@ function App() {
         <label className="layer-toggle">
           <input
             type="checkbox"
-            checked={showKills}
+            checked={
+              showKills
+            }
             onChange={(event) =>
               setShowKills(
                 event.target.checked
@@ -437,7 +636,9 @@ function App() {
         <label className="layer-toggle">
           <input
             type="checkbox"
-            checked={showDeaths}
+            checked={
+              showDeaths
+            }
             onChange={(event) =>
               setShowDeaths(
                 event.target.checked
@@ -453,7 +654,9 @@ function App() {
         <label className="layer-toggle">
           <input
             type="checkbox"
-            checked={showLoot}
+            checked={
+              showLoot
+            }
             onChange={(event) =>
               setShowLoot(
                 event.target.checked
@@ -469,7 +672,9 @@ function App() {
         <label className="layer-toggle">
           <input
             type="checkbox"
-            checked={showStormDeaths}
+            checked={
+              showStormDeaths
+            }
             onChange={(event) =>
               setShowStormDeaths(
                 event.target.checked
@@ -503,7 +708,8 @@ function App() {
             {
               loadingMatch && (
                 <span className="loading-label">
-                  LOADING MATCH...
+                  LOADING
+                  MATCH...
                 </span>
               )
             }
@@ -516,7 +722,8 @@ function App() {
                   <img
                     src={
                       MINIMAP_PATHS[
-                        matchData.mapId
+                        matchData
+                          .mapId
                       ]
                     }
                     alt={
@@ -531,189 +738,492 @@ function App() {
                     preserveAspectRatio="none"
                   >
                     {
-                      matchData.players.map(
-                        (player) => {
-                          if (
-                            player.type ===
-                              "human" &&
-                            !showHumans
-                          ) {
-                            return null;
+                      matchData
+                        .players
+                        .map(
+                          (
+                            player
+                          ) => {
+                            if (
+                              player
+                                .type ===
+                                "human" &&
+                              !showHumans
+                            ) {
+                              return null;
+                            }
+
+                            if (
+                              player
+                                .type ===
+                                "bot" &&
+                              !showBots
+                            ) {
+                              return null;
+                            }
+
+                            const visiblePath =
+                              player.path.filter(
+                                (
+                                  point
+                                ) =>
+                                  point.t <=
+                                  currentTimeMs
+                              );
+
+                            if (
+                              visiblePath
+                                .length <
+                              2
+                            ) {
+                              return null;
+                            }
+
+                            const points =
+                              visiblePath
+                                .map(
+                                  (
+                                    point
+                                  ) =>
+                                    `${point.px},${point.py}`
+                                )
+                                .join(
+                                  " "
+                                );
+
+                            return (
+                              <polyline
+                                key={
+                                  player.userId
+                                }
+                                points={
+                                  points
+                                }
+                                fill="none"
+                                className={
+                                  player.type ===
+                                  "human"
+                                    ? "human-path"
+                                    : "bot-path"
+                                }
+                              />
+                            );
                           }
-
-                          if (
-                            player.type ===
-                              "bot" &&
-                            !showBots
-                          ) {
-                            return null;
-                          }
-
-                          if (
-                            player.path.length <
-                            2
-                          ) {
-                            return null;
-                          }
-
-                          const points =
-                            player.path
-                              .map(
-                                (point) =>
-                                  `${point.px},${point.py}`
-                              )
-                              .join(" ");
-
-                          return (
-                            <polyline
-                              key={
-                                player.userId
-                              }
-                              points={
-                                points
-                              }
-                              fill="none"
-                              className={
-                                player.type ===
-                                "human"
-                                  ? "human-path"
-                                  : "bot-path"
-                              }
-                            />
-                          );
-                        }
-                      )
+                        )
                     }
 
                     {
-                      matchData.players.flatMap(
-                        (player) => {
-                          if (
-                            player.type ===
-                              "human" &&
-                            !showHumans
-                          ) {
-                            return [];
-                          }
-
-                          if (
-                            player.type ===
-                              "bot" &&
-                            !showBots
-                          ) {
-                            return [];
-                          }
-
-                          return player.events.map(
-                            (
-                              event,
-                              eventIndex
-                            ) => {
-                              const isKill =
-                                event.type ===
-                                  "Kill" ||
-                                event.type ===
-                                  "BotKill";
-
-                              const isDeath =
-                                event.type ===
-                                  "Killed" ||
-                                event.type ===
-                                  "BotKilled";
-
-                              const isLoot =
-                                event.type ===
-                                "Loot";
-
-                              const isStorm =
-                                event.type ===
-                                "KilledByStorm";
-
-                              if (
-                                isKill &&
-                                !showKills
-                              ) {
-                                return null;
-                              }
-
-                              if (
-                                isDeath &&
-                                !showDeaths
-                              ) {
-                                return null;
-                              }
-
-                              if (
-                                isLoot &&
-                                !showLoot
-                              ) {
-                                return null;
-                              }
-
-                              if (
-                                isStorm &&
-                                !showStormDeaths
-                              ) {
-                                return null;
-                              }
-
-                              let className =
-                                "event-marker";
-
-                              if (isKill) {
-                                className +=
-                                  " kill-marker";
-                              }
-
-                              if (isDeath) {
-                                className +=
-                                  " death-marker";
-                              }
-
-                              if (isLoot) {
-                                className +=
-                                  " loot-marker";
-                              }
-
-                              if (isStorm) {
-                                className +=
-                                  " storm-marker";
-                              }
-
-                              return (
-                                <circle
-                                  key={
-                                    `${player.userId}-${event.type}-${eventIndex}`
-                                  }
-                                  cx={
-                                    event.px
-                                  }
-                                  cy={
-                                    event.py
-                                  }
-                                  r={
-                                    isStorm
-                                      ? 9
-                                      : 6
-                                  }
-                                  className={
-                                    className
-                                  }
-                                />
-                              );
+                      matchData
+                        .players
+                        .map(
+                          (
+                            player
+                          ) => {
+                            if (
+                              player
+                                .type ===
+                                "human" &&
+                              !showHumans
+                            ) {
+                              return null;
                             }
-                          );
-                        }
-                      )
+
+                            if (
+                              player
+                                .type ===
+                                "bot" &&
+                              !showBots
+                            ) {
+                              return null;
+                            }
+
+                            const visiblePoints =
+                              player.path.filter(
+                                (
+                                  point
+                                ) =>
+                                  point.t <=
+                                  currentTimeMs
+                              );
+
+                            if (
+                              visiblePoints
+                                .length ===
+                              0
+                            ) {
+                              return null;
+                            }
+
+                            const currentPoint =
+                              visiblePoints[
+                                visiblePoints.length -
+                                  1
+                              ];
+
+                            return (
+                              <circle
+                                key={
+                                  `current-${player.userId}`
+                                }
+                                cx={
+                                  currentPoint.px
+                                }
+                                cy={
+                                  currentPoint.py
+                                }
+                                r={
+                                  player.type ===
+                                  "human"
+                                    ? 8
+                                    : 6
+                                }
+                                className={
+                                  player.type ===
+                                  "human"
+                                    ? "human-current-position"
+                                    : "bot-current-position"
+                                }
+                              />
+                            );
+                          }
+                        )
+                    }
+
+                    {
+                      matchData
+                        .players
+                        .flatMap(
+                          (
+                            player
+                          ) => {
+                            if (
+                              player
+                                .type ===
+                                "human" &&
+                              !showHumans
+                            ) {
+                              return [];
+                            }
+
+                            if (
+                              player
+                                .type ===
+                                "bot" &&
+                              !showBots
+                            ) {
+                              return [];
+                            }
+
+                            return player.events.map(
+                              (
+                                event,
+                                eventIndex
+                              ) => {
+                                if (
+                                  event.t >
+                                  currentTimeMs
+                                ) {
+                                  return null;
+                                }
+
+                                const isKill =
+                                  event.type ===
+                                    "Kill" ||
+                                  event.type ===
+                                    "BotKill";
+
+                                const isDeath =
+                                  event.type ===
+                                    "Killed" ||
+                                  event.type ===
+                                    "BotKilled";
+
+                                const isLoot =
+                                  event.type ===
+                                  "Loot";
+
+                                const isStorm =
+                                  event.type ===
+                                  "KilledByStorm";
+
+                                if (
+                                  isKill &&
+                                  !showKills
+                                ) {
+                                  return null;
+                                }
+
+                                if (
+                                  isDeath &&
+                                  !showDeaths
+                                ) {
+                                  return null;
+                                }
+
+                                if (
+                                  isLoot &&
+                                  !showLoot
+                                ) {
+                                  return null;
+                                }
+
+                                if (
+                                  isStorm &&
+                                  !showStormDeaths
+                                ) {
+                                  return null;
+                                }
+
+                                let className =
+                                  "event-marker";
+
+                                if (
+                                  isKill
+                                ) {
+                                  className +=
+                                    " kill-marker";
+                                }
+
+                                if (
+                                  isDeath
+                                ) {
+                                  className +=
+                                    " death-marker";
+                                }
+
+                                if (
+                                  isLoot
+                                ) {
+                                  className +=
+                                    " loot-marker";
+                                }
+
+                                if (
+                                  isStorm
+                                ) {
+                                  className +=
+                                    " storm-marker";
+                                }
+
+                                return (
+                                  <circle
+                                    key={
+                                      `${player.userId}-${event.type}-${eventIndex}`
+                                    }
+                                    cx={
+                                      event.px
+                                    }
+                                    cy={
+                                      event.py
+                                    }
+                                    r={
+                                      isStorm
+                                        ? 9
+                                        : 6
+                                    }
+                                    className={
+                                      className
+                                    }
+                                  />
+                                );
+                              }
+                            );
+                          }
+                        )
                     }
                   </svg>
                 </>
               ) : (
                 <div className="center-screen">
-                  No match available for the selected filters.
+                  No match available
+                  for the selected
+                  filters.
                 </div>
               )
             }
+          </div>
+
+          <div className="timeline-panel">
+            <div className="timeline-top-row">
+              <div className="timeline-time">
+                <strong>
+                  {
+                    formatTime(
+                      currentTimeMs
+                    )
+                  }
+                </strong>
+
+                <span>
+                  /
+                </span>
+
+                <span>
+                  {
+                    formatTime(
+                      matchData
+                        ?.durationMs ??
+                        0
+                    )
+                  }
+                </span>
+              </div>
+
+              <div className="playback-speed">
+                <span>
+                  SPEED
+                </span>
+
+                <button
+                  className={
+                    playbackSpeed ===
+                    0.5
+                      ? "speed-button active"
+                      : "speed-button"
+                  }
+                  onClick={() =>
+                    setPlaybackSpeed(
+                      0.5
+                    )
+                  }
+                >
+                  0.5×
+                </button>
+
+                <button
+                  className={
+                    playbackSpeed ===
+                    1
+                      ? "speed-button active"
+                      : "speed-button"
+                  }
+                  onClick={() =>
+                    setPlaybackSpeed(
+                      1
+                    )
+                  }
+                >
+                  1×
+                </button>
+
+                <button
+                  className={
+                    playbackSpeed ===
+                    2
+                      ? "speed-button active"
+                      : "speed-button"
+                  }
+                  onClick={() =>
+                    setPlaybackSpeed(
+                      2
+                    )
+                  }
+                >
+                  2×
+                </button>
+              </div>
+            </div>
+
+            <input
+              className="timeline-slider"
+              type="range"
+              min={0}
+              max={
+                matchData
+                  ?.durationMs ??
+                0
+              }
+              step={50}
+              value={
+                Math.min(
+                  currentTimeMs,
+                  matchData
+                    ?.durationMs ??
+                    0
+                )
+              }
+              onChange={(event) => {
+                setCurrentTimeMs(
+                  Number(
+                    event.target
+                      .value
+                  )
+                );
+
+                setIsPlaying(
+                  false
+                );
+              }}
+            />
+
+            <div className="playback-controls">
+              <button
+                className="playback-button"
+                onClick={() => {
+                  setCurrentTimeMs(
+                    0
+                  );
+
+                  setIsPlaying(
+                    false
+                  );
+                }}
+                disabled={
+                  !matchData
+                }
+              >
+                <RotateCcw
+                  size={15}
+                />
+
+                RESET
+              </button>
+
+              <button
+                className="playback-button primary"
+                onClick={() => {
+                  if (!matchData) {
+                    return;
+                  }
+
+                  if (
+                    currentTimeMs >=
+                    matchData
+                      .durationMs
+                  ) {
+                    setCurrentTimeMs(
+                      0
+                    );
+                  }
+
+                  setIsPlaying(
+                    (value) =>
+                      !value
+                  );
+                }}
+                disabled={
+                  !matchData
+                }
+              >
+                {
+                  isPlaying ? (
+                    <>
+                      <Pause
+                        size={15}
+                      />
+                      PAUSE
+                    </>
+                  ) : (
+                    <>
+                      <Play
+                        size={15}
+                      />
+                      PLAY
+                    </>
+                  )
+                }
+              </button>
+            </div>
           </div>
         </section>
 
@@ -724,7 +1234,9 @@ function App() {
 
           <div className="stat-grid">
             <div className="stat-card">
-              <Users size={18} />
+              <Users
+                size={18}
+              />
 
               <span>
                 HUMANS
@@ -733,13 +1245,16 @@ function App() {
               <strong>
                 {
                   matchData
-                    ?.humanCount ?? "-"
+                    ?.humanCount ??
+                  "-"
                 }
               </strong>
             </div>
 
             <div className="stat-card">
-              <Bot size={18} />
+              <Bot
+                size={18}
+              />
 
               <span>
                 BOTS
@@ -748,13 +1263,16 @@ function App() {
               <strong>
                 {
                   matchData
-                    ?.botCount ?? "-"
+                    ?.botCount ??
+                  "-"
                 }
               </strong>
             </div>
 
             <div className="stat-card">
-              <Crosshair size={18} />
+              <Crosshair
+                size={18}
+              />
 
               <span>
                 KILLS
@@ -777,7 +1295,9 @@ function App() {
             </div>
 
             <div className="stat-card">
-              <Skull size={18} />
+              <Skull
+                size={18}
+              />
 
               <span>
                 DEATHS
@@ -805,7 +1325,8 @@ function App() {
 
           <div className="legend-card">
             <span className="eyebrow">
-              JOURNEY & EVENT LEGEND
+              JOURNEY & EVENT
+              LEGEND
             </span>
 
             <div className="legend-row">

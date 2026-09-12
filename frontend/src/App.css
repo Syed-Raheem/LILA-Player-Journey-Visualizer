@@ -526,3 +526,153 @@
 
   border-radius: 50%;
 }
+.timeline-panel {
+  padding: 14px 16px 16px;
+
+  border-top: 1px solid #252c34;
+
+  background: #0b1015;
+}
+
+.timeline-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 16px;
+}
+
+.timeline-time {
+  display: flex;
+  align-items: center;
+
+  gap: 7px;
+
+  color: #687686;
+
+  font-size: 11px;
+}
+
+.timeline-time strong {
+  color: #eef4fa;
+
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.playback-speed {
+  display: flex;
+  align-items: center;
+
+  gap: 5px;
+}
+
+.playback-speed > span {
+  margin-right: 3px;
+
+  color: #5e6a78;
+
+  font-size: 9px;
+  font-weight: 800;
+
+  letter-spacing: 0.12em;
+}
+
+.speed-button,
+.playback-button {
+  border: 1px solid #303944;
+
+  color: #8e9baa;
+  background: #11171d;
+
+  cursor: pointer;
+}
+
+.speed-button {
+  padding: 4px 7px;
+
+  font-size: 10px;
+}
+
+.speed-button.active {
+  border-color: #77889b;
+
+  color: #eef5fc;
+  background: #202933;
+}
+
+.timeline-slider {
+  width: 100%;
+
+  margin: 14px 0 12px;
+
+  accent-color: #d5e5f5;
+
+  cursor: pointer;
+}
+
+.playback-controls {
+  display: flex;
+  align-items: center;
+
+  gap: 7px;
+}
+
+.playback-button {
+  min-height: 32px;
+
+  padding: 0 12px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 6px;
+
+  font-size: 10px;
+  font-weight: 700;
+
+  letter-spacing: 0.08em;
+}
+
+.playback-button:hover:not(:disabled) {
+  border-color: #677688;
+
+  color: #f5f8fb;
+}
+
+.playback-button.primary {
+  color: #0a0d11;
+  background: #e6edf5;
+
+  border-color: #e6edf5;
+}
+
+.playback-button.primary:hover:not(:disabled) {
+  color: #0a0d11;
+  background: #ffffff;
+}
+
+.playback-button:disabled {
+  opacity: 0.35;
+
+  cursor: not-allowed;
+}
+
+.human-current-position,
+.bot-current-position {
+  vector-effect:
+    non-scaling-stroke;
+
+  stroke-width: 3;
+}
+
+.human-current-position {
+  fill: #ffffff;
+  stroke: #5d8fbd;
+}
+
+.bot-current-position {
+  fill: #f2a74b;
+  stroke: #3c2812;
+}
