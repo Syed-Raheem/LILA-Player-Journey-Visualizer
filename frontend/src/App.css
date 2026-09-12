@@ -1,0 +1,528 @@
+#root {
+  min-height: 100vh;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.app-shell {
+  min-height: 100vh;
+  background:
+    radial-gradient(
+      circle at 20% 0%,
+      rgba(63, 86, 115, 0.12),
+      transparent 28%
+    ),
+    #0a0d11;
+
+  color: #f1f5f9;
+}
+
+.topbar {
+  min-height: 82px;
+  padding: 18px 28px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  border-bottom: 1px solid #242a31;
+
+  background: rgba(
+    12,
+    16,
+    21,
+    0.94
+  );
+}
+
+.brand-row {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+
+.brand {
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+
+.divider {
+  color: #4a5563;
+}
+
+.product-name {
+  color: #9ba7b5;
+
+  font-size: 13px;
+  letter-spacing: 0.1em;
+}
+
+.subtitle {
+  margin: 5px 0 0;
+
+  color: #5f6b78;
+
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.dataset-pill {
+  padding: 7px 10px;
+
+  border: 1px solid #333c47;
+  border-radius: 4px;
+
+  color: #95a4b5;
+  background: #11161c;
+
+  font-size: 11px;
+  letter-spacing: 0.08em;
+}
+
+.filter-bar {
+  padding: 14px 28px;
+
+  display: grid;
+
+  grid-template-columns:
+    220px
+    220px
+    minmax(280px, 1fr);
+
+  gap: 12px;
+
+  border-bottom: 1px solid #20262d;
+
+  background: #0d1116;
+}
+
+.filter-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.filter-field > span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  color: #697584;
+
+  font-size: 10px;
+  font-weight: 700;
+
+  letter-spacing: 0.12em;
+}
+
+.filter-field select {
+  width: 100%;
+  height: 38px;
+
+  padding: 0 10px;
+
+  border: 1px solid #303843;
+  border-radius: 3px;
+
+  color: #d9e0e7;
+  background: #141a21;
+
+  outline: none;
+}
+
+.filter-field select:focus {
+  border-color: #687789;
+}
+
+.layer-bar {
+  min-height: 50px;
+
+  padding: 9px 28px;
+
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+
+  gap: 18px;
+
+  border-bottom: 1px solid #20262d;
+
+  background: #0b0f14;
+}
+
+.layer-title {
+  color: #596675;
+
+  font-size: 9px;
+  font-weight: 800;
+
+  letter-spacing: 0.14em;
+}
+
+.layer-toggle {
+  display: flex;
+  align-items: center;
+
+  gap: 7px;
+
+  color: #8e9aa8;
+
+  font-size: 11px;
+
+  cursor: pointer;
+
+  user-select: none;
+}
+
+.layer-toggle input {
+  width: 13px;
+  height: 13px;
+
+  margin: 0;
+
+  accent-color: #8191a3;
+}
+
+.layer-swatch {
+  width: 20px;
+  height: 2px;
+
+  display: inline-block;
+}
+
+.human-swatch {
+  background: #e7f1ff;
+}
+
+.bot-swatch {
+  background: #f2a74b;
+}
+
+.layer-separator {
+  width: 1px;
+  height: 20px;
+
+  background: #28313a;
+}
+
+.event-dot {
+  width: 9px;
+  height: 9px;
+
+  display: inline-block;
+
+  border-radius: 50%;
+}
+
+.kill-dot {
+  background: #ff4d4d;
+}
+
+.death-dot {
+  background: #b07cff;
+}
+
+.loot-dot {
+  background: #48d597;
+}
+
+.storm-dot {
+  background: #49a8ff;
+}
+
+
+.workspace {
+  padding: 20px 28px 28px;
+
+  display: grid;
+
+  grid-template-columns:
+    minmax(0, 1fr)
+    270px;
+
+  gap: 18px;
+}
+
+.map-panel,
+.sidebar {
+  border: 1px solid #252c34;
+
+  background: #0d1217;
+}
+
+.map-panel {
+  min-width: 0;
+}
+
+.panel-header {
+  min-height: 68px;
+
+  padding: 13px 16px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  border-bottom: 1px solid #252c34;
+}
+
+.panel-header h2 {
+  margin: 4px 0 0;
+
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.eyebrow {
+  color: #637080;
+
+  font-size: 9px;
+  font-weight: 800;
+
+  letter-spacing: 0.15em;
+}
+
+.loading-label {
+  color: #7c8998;
+
+  font-size: 10px;
+  letter-spacing: 0.1em;
+}
+
+.minimap-stage {
+  position: relative;
+
+  width: 100%;
+  max-width: 900px;
+
+  margin: 0 auto;
+
+  aspect-ratio: 1 / 1;
+
+  overflow: hidden;
+
+  background: #080b0e;
+}
+
+.minimap-image {
+  position: absolute;
+  inset: 0;
+
+  width: 100%;
+  height: 100%;
+
+  object-fit: fill;
+
+  opacity: 0.82;
+}
+
+.telemetry-layer {
+  position: absolute;
+  inset: 0;
+
+  width: 100%;
+  height: 100%;
+
+  pointer-events: none;
+}
+
+.human-path {
+  stroke: #e7f1ff;
+  stroke-width: 2.3;
+
+  vector-effect:
+    non-scaling-stroke;
+
+  opacity: 0.72;
+}
+
+.bot-path {
+  stroke: #f2a74b;
+  stroke-width: 1.45;
+
+  vector-effect:
+    non-scaling-stroke;
+
+  opacity: 0.43;
+}
+
+.sidebar {
+  padding-bottom: 18px;
+}
+
+.sidebar-heading {
+  padding: 16px;
+
+  border-bottom: 1px solid #252c34;
+
+  color: #748190;
+
+  font-size: 10px;
+  font-weight: 800;
+
+  letter-spacing: 0.14em;
+}
+
+.stat-grid {
+  padding: 14px;
+
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+
+  gap: 8px;
+}
+
+.stat-card {
+  min-height: 100px;
+
+  padding: 11px;
+
+  display: flex;
+  flex-direction: column;
+
+  border: 1px solid #252d36;
+
+  background: #11171d;
+
+  color: #677585;
+}
+
+.stat-card span {
+  margin-top: 10px;
+
+  font-size: 9px;
+  font-weight: 700;
+
+  letter-spacing: 0.08em;
+}
+
+.stat-card strong {
+  margin-top: auto;
+
+  color: #eff4f8;
+
+  font-size: 24px;
+  font-weight: 500;
+}
+
+.legend-card,
+.match-details {
+  margin: 0 14px 12px;
+
+  padding: 14px;
+
+  border: 1px solid #252d36;
+
+  background: #10161c;
+}
+
+.legend-row {
+  margin-top: 14px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 10px;
+
+  color: #a0abb7;
+  font-size: 12px;
+}
+
+.line {
+  width: 28px;
+  height: 2px;
+}
+
+.human-line {
+  background: #e7f1ff;
+}
+
+.bot-line {
+  background: #f2a74b;
+}
+
+.match-details code {
+  display: block;
+
+  margin-top: 8px;
+
+  color: #96a4b4;
+
+  font-size: 10px;
+
+  overflow-wrap: anywhere;
+}
+
+.center-screen {
+  min-height: 100vh;
+
+  display: grid;
+  place-items: center;
+
+  color: #cbd5df;
+  background: #090c10;
+}
+
+.error-panel {
+  max-width: 520px;
+  padding: 25px;
+
+  border: 1px solid #472e32;
+
+  background: #181012;
+}
+
+@media (
+  max-width: 950px
+) {
+  .workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .filter-bar {
+    grid-template-columns: 1fr;
+  }
+}
+
+.event-marker {
+  vector-effect:
+    non-scaling-stroke;
+
+  stroke: #080b0e;
+  stroke-width: 2;
+
+  opacity: 0.95;
+}
+
+.kill-marker {
+  fill: #ff4d4d;
+}
+
+.death-marker {
+  fill: #b07cff;
+}
+
+.loot-marker {
+  fill: #48d597;
+}
+
+.storm-marker {
+  fill: #49a8ff;
+
+  stroke: #d5ecff;
+  stroke-width: 2.5;
+}
+
+.legend-event {
+  width: 9px;
+  height: 9px;
+
+  display: inline-block;
+
+  flex: 0 0 auto;
+
+  border-radius: 50%;
+}
